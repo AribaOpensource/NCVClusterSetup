@@ -1,0 +1,5 @@
+---
+# dnsmasq installation steps
+-  apt:
+    name: dnsmasq
+    state: present

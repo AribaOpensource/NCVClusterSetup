@@ -1,0 +1,8 @@
+#start/stop/restart Jenkins service
+---
+- name: Set service running state to restart if none specified as that is the popular request
+  set_fact: service_state=restarted
+  when: service_state is undefined
+
+- name: Try to bring the Jenkins instance to the specified state
+  service: name=jenkins state="{{ service_state }}"

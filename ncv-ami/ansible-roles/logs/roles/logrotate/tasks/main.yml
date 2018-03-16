@@ -1,0 +1,47 @@
+
+---
+- name: Check if /etc/logrotate.d/cobalt exists
+  stat: path=/etc/logrotate.d/cobalt
+  register: cobalt_file
+
+- name: copy cobalt logrotate template to hosts if that doesn't exist yet.
+  template: src=cobalt dest=/etc/logrotate.d/cobalt owner=root group=root mode=644
+  when: cobalt_file.stat.exists == False
+
+- name: Check if /etc/logrotate.d/upstart exists
+  stat: path=/etc/logrotate.d/upstart
+  register: upstart_file
+
+- name: copy upstart logrotate template to hosts if that doesn't exist yet.
+  template: src=cobalt dest=/etc/logrotate.d/upstart owner=root group=root mode=644
+  when: upstart_file.stat.exists == False
+
+- name: replace 'size 100M copytruncate' with 'size 100M'
+  replace: path=/etc/logrotate.d/cobalt regexp='^(\s*size\s*\d+M)[^\S\r\n]copytruncate\s*$' replace='\1' group=root owner=root mode=644
+  when: cobalt_file.stat.exists == True
+
+
+- name: get /etc/logrotate.d/cobalt content
+  shell: cat /etc/logrotate.d/cobalt
+  register: cobalt_content
+
+- name: check if 'copytruncate' exists in cobalt and insert 'copytruncate' line
+  lineinfile: path=/etc/logrotate.d/cobalt backrefs=true regexp='^(\s*)(size\s*\d+M)\s*$' line='\1\2\n\1copytruncate' group=root owner=root mode=644
+  when: cobalt_content.stdout.find('copytruncate') == -1
+
+- name: check if '/var/log/audit/audit.log' exists and insert '/var/log/audit/audit.log' line
+  lineinfile: path=/etc/logrotate.d/cobalt insertbefore=BOF line='/var/log/audit/audit.log' group=root owner=root mode=644
+  when: cobalt_content.stdout.find('/var/log/audit/audit.log') == -1
+
+- name: check if '/var/log/vault_audit.log' exists and insert '/var/log/vault_audit.log' line
+  lineinfile: path=/etc/logrotate.d/cobalt insertbefore=BOF line='/var/log/vault_audit.log' group=root owner=root mode=644
+  when: cobalt_content.stdout.find('/var/log/vault_audit.log') == -1
+
+
+- name: get /etc/logrotate.d/upstart content
+  shell: cat /etc/logrotate.d/upstart
+  register: upstart_content
+
+- name: check if 'copytruncate' exists in upstart and insert 'copytruncate' line
+  lineinfile: path=/etc/logrotate.d/upstart backrefs=true regexp='^(\s*)(size\s*\d+M)\s*$' line='\1\2\n\1copytruncate' group=root owner=root mode=644
+  when: upstart_content.stdout.find('copytruncate') == -1

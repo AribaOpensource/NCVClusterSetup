@@ -1,0 +1,11 @@
+init_config:
+  # used to override the default procfs path, e.g. for docker
+  # containers to see the processes of the host at /host/proc
+  # procfs_path: /proc
+instances:
+  - name: consul
+    search_string: ['consul']
+  - name: mysqld
+    search_string: ['mysqld']
+  - name: splunkd
+    search_string: ['splunkd']

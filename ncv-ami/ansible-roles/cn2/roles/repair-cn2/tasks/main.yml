@@ -1,0 +1,21 @@
+---
+# Repair CN2 
+
+- name: "stop netmaster"
+  become: true 
+  service: name=netmaster state=stopped
+  when: inventory_hostname in groups['ncv']
+
+- name: "stop netplugin"
+  become: true 
+  service:
+   name: netplugin
+   state: stopped
+
+- name: "start netmaster"
+  become: true
+  service: name=netmaster state=started
+  when: inventory_hostname in groups['ncv']
+
+- name: "start netplugin"
+  service: name=netplugin state=started

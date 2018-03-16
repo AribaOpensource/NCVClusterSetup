@@ -1,0 +1,15 @@
+#Implement SNMP monitoring for https-proxy service
+#Auto-discovery must be enabled for this to work.
+---
+- name: Remove snmp.yaml from conf.d
+  shell: mv /etc/dd-agent/conf.d/snmp.yaml /etc/dd-agent/conf.d/snmp.yaml.BAK || echo "skipping..."
+
+- name: Configure auto-discovery for https-proxy containers, enabling SNMP
+  template: src=snmp.yaml.auto_conf.j2 dest=/etc/dd-agent/conf.d/auto_conf/snmp.yaml owner=dd-agent group=dd-agent
+
+- name: Create /usr/share/snmp/mibs if it doesn't exist
+  file: path=/usr/share/snmp/mibs state=directory owner=dd-agent group=dd-agent
+
+- name: Install SQUID-MIB.py file to support https-proxy-service/SNMP integration
+  template: src=SQUID-MIB.py dest=/usr/share/snmp/mibs/SQUID-MIB.py owner=dd-agent group=dd-agent
+

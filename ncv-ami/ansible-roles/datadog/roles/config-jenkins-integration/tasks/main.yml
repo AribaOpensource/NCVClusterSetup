@@ -1,0 +1,7 @@
+#Enables Jenkins integration
+---
+- name: Rename jenkins.yaml.example file to jenkins.yaml
+  shell: cp /etc/dd-agent/conf.d/jenkins.yaml.example /etc/dd-agent/conf.d/jenkins.yaml
+
+- name: Set permissions on /etc/dd-agent/conf.d/jenkins.yaml
+  file: path=/etc/dd-agent/conf.d/jenkins.yaml owner=dd-agent group=dd-agent

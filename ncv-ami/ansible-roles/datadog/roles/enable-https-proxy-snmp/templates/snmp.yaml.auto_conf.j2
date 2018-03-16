@@ -1,0 +1,55 @@
+docker_images:
+  - https-proxy
+  - https-proxy-service
+# THIS IS JUST FOR REFERENCE - A KNOWN WORKING DATADOG YAML FOR SQUID
+init_config:
+  #You can specify an additional folder for your custom mib files (python format)
+   mibs_folder: /usr/share/snmp/mibs
+instances:
+
+  # SNMP v1-v2 configuration
+  - ip_address: "%%host%%"
+    port: 3401
+    community_string: public
+    snmp_version: 1 # Only required for snmp v1, will default to 2
+    timeout: 10 # second, by default
+    retries: 5
+    enforce_mib_constraints: true  # if set to false we will not check the values
+                                   # returned meet the MIB constraints. Defaults to True.
+    tags:
+      - container-type:https-proxy
+      - docker-config:auto-discovered
+      - container-ip:"%%host%%"
+    metrics:
+      - MIB: SQUID-MIB
+        symbol: cacheMemUsage
+      - MIB: SQUID-MIB
+        symbol: cacheSysVMsize
+      - MIB: SQUID-MIB
+        symbol: cacheSysStorage
+      - MIB: SQUID-MIB
+        symbol: cacheUptime
+      - MIB: SQUID-MIB
+        symbol: cacheMemMaxSize
+      - MIB: SQUID-MIB
+        symbol: cacheSwapHighWM
+      - MIB: SQUID-MIB
+        symbol: cacheSwapLowWM
+      - MIB: SQUID-MIB
+        symbol: cacheSysPageFaults
+      - MIB: SQUID-MIB
+        symbol: cacheSysNumReads
+      - MIB: SQUID-MIB
+        symbol: cacheCpuTime
+      - MIB: SQUID-MIB
+        symbol: cacheCpuUsage
+      - MIB: SQUID-MIB
+        symbol: cacheNumObjCount
+      - MIB: SQUID-MIB
+        symbol: cacheProtoClientHttpRequests
+      - MIB: SQUID-MIB
+        symbol: cacheHttpErrors
+      - MIB: SQUID-MIB
+        symbol: cacheHttpInKb
+      - MIB: SQUID-MIB
+        symbol: cacheServerErrors

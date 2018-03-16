@@ -1,0 +1,10 @@
+---
+# Installation steps
+- hosts: all
+  roles:
+  - os
+  - consul-template
+  - consul
+  - dnsmasq
+  - nomad
+  - vault

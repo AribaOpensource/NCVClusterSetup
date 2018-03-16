@@ -1,0 +1,11 @@
+#Enable JMX on a Jenkins instance.
+---
+- name: Set JMX port number to 7199 if none specified
+  set_fact: jenkins_jmx_port=7199
+  when: jenkins_jmx_port is undefined
+
+- name: Add JAVA options to /etc/default/jenkins to enable JMX
+  lineinfile: 
+     path: /etc/default/jenkins 
+     line: 'export JAVA_ARGS="$JAVA_ARGS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{ jenkins_jmx_port }} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"'
+     backup: yes

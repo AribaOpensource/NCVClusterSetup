@@ -1,0 +1,68 @@
+---
+# Consul installation steps
+- name: Install Consul
+  unarchive:
+    remote_src: yes
+    src: "{{rel_hashi}}/consul/{{consul_version}}/consul_{{consul_version}}_linux_amd64.zip"
+    dest: /usr/local/bin/
+    mode: 0755
+
+- file:
+    path: /usr/share/consul-web-ui/dist
+    state: directory
+    mode: 0755
+
+- name: Install Consul UI
+  unarchive:
+    remote_src: yes
+    src: "{{rel_hashi}}/consul/{{consul_ui_version}}/consul_{{consul_ui_version}}_web_ui.zip"
+    dest: /usr/share/consul-web-ui/dist
+    mode: 0755
+
+- copy:
+    src: consul.service
+    dest: /etc/systemd/system/consul.service
+
+- file:
+    path: /var/cobalt/systemd_scripts
+    state: directory
+    mode: 0755
+
+- copy:
+    src: consul-service.sh
+    dest: /var/cobalt/systemd_scripts/consul-service.sh
+    mode: 0755
+
+- copy:
+    src: awsHelper.sh
+    dest: /var/cobalt/systemd_scripts/awsHelper.sh
+    mode: 0755
+
+- file:
+    path: /var/consul/config
+    state: directory
+    mode: 0755
+
+- copy:
+    src: "{{ item }}"
+    dest: /var/consul/config/
+    mode: 0755
+  with_fileglob:
+    - "*.template"
+
+- copy:
+    src: updateResolvConf.sh.template
+    dest: /var/consul/config/updateResolvConf.sh.template
+    mode: 0755
+
+
+- name: enable consul service
+  systemd:
+    name: consul.service
+    enabled: yes
+    masked: no
+
+- cron:
+    name: update resolve.conf"
+    minute: "2"
+    job: "/var/consul/config/updateResolvConf.sh > /dev/null"

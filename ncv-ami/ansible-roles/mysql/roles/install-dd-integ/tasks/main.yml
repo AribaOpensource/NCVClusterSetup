@@ -1,0 +1,27 @@
+#mysql metrics
+---
+- name: Install datadog agent
+  shell: DD_API_KEY=8c27e71d86f00980b91bcbf0600b9f29 bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)"
+
+- name: Use sql script to create user and verify privileges
+  script: mysql-dd-integ.sh '{{ dd_user_pass }}'
+  register: out
+  become: yes
+
+- name: Check Datadog agent version installed
+  shell: /opt/datadog-agent/agent/agent.py info |grep Collector
+  register: out
+
+- debug: msg="Datadog agent version={{ out.stdout }}"
+
+- name: Prepare tags string with additional playbook defined tags
+  set_fact: tags_str="env{{ ':' }}{{ env_name }},instance-name{{ ':' }}{{ inventory_hostname }},role{{ ':' }}{{ instance_role }}"
+
+- name: Edit /etc/dd-agent/conf.d/mysql.yaml
+  template: src=mysql.yaml.tmpl dest=/etc/dd-agent/conf.d/mysql.yaml
+
+- name: Add tags to datadog.conf
+  lineinfile: path=/etc/dd-agent/datadog.conf regexp="^tags:" line="tags{{ ':' }} {{ tags_str }}"
+
+- name: restart agent
+  service: name=datadog-agent state=restarted

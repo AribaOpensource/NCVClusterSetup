@@ -1,0 +1,25 @@
+data_dir = "/var/nomad/data"
+
+client {
+  enabled = true
+
+  options = {
+    "driver.raw_exec.enable"    = "1"
+    "docker.privileged.enabled" = "true"
+  }
+}
+
+advertise {
+  "http" = "{{ env "IP4_ADD" }}"
+  "rpc"  = "{{ env "IP4_ADD" }}"
+  "serf" = "{{ env "IP4_ADD" }}"
+}
+
+consul {
+  address = "consul.service:8500"
+}
+
+server {
+  bootstrap_expect = 1
+  enabled          = true
+}

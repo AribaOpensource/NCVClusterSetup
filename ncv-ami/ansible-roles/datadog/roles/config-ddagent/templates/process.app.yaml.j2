@@ -1,0 +1,17 @@
+init_config:
+  # used to override the default procfs path, e.g. for docker
+  # containers to see the processes of the host at /host/proc
+  # procfs_path: /proc
+instances:
+  - name: consul
+    search_string: ['consul']
+  - name: consul2
+    search_string: ['consul2']
+  - name: netplugin
+    search_string: ['netplugin']
+  - name: nomad
+    search_string: ['nomad']
+  - name: docker
+    search_string: ['dockerd']
+  - name: splunkd
+    search_string: ['splunkd']

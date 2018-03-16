@@ -1,0 +1,10 @@
+/var/log/upstart/*.log {
+        rotate 4
+        size 100M
+        missingok
+        notifempty
+        compress
+        copytruncate
+        delaycompress
+        nocreate
+}

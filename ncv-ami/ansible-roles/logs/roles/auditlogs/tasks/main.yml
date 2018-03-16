@@ -1,0 +1,13 @@
+---
+    - name: Deleting line
+      lineinfile:
+            path: /etc/audit/audit.rules
+            regexp: '^-a never,\s*exit\s+-F\s+path=/opt/datadog-agent/embedded/bin/python2.7'
+            state: absent
+
+    - name: Adding line
+      lineinfile:
+            path: /etc/audit/audit.rules
+            line: "-a never,exit -S 2 -S 257 -S 87 -F path=/opt/datadog-agent"
+            insertafter: '^\s*# Feel free to add below this line. See auditctl man page\s*$'
+            state: present

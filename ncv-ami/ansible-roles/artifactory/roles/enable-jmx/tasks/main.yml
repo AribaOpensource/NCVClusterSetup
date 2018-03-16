@@ -1,0 +1,17 @@
+#Enable JMX on the Artifactory instance
+#The updates must be done in /etc/opt/jfrog/artifactory/default,
+#Params:
+#artifactory_jmx_port (optional), default 8199
+---
+- name: Set artifactory_home
+  set_fact: artifactory_home=/var/opt/jfrog/artifactory
+
+- name: Set JMX port number to 8199 if none specified
+  set_fact: artifactory_jmx_port=8199
+  when: artifactory_jmx_port is undefined
+
+- name: Add JAVA options to /etc/opt/jfrog/artifactory/default to enable JMX
+  lineinfile: 
+     path: /etc/opt/jfrog/artifactory/default
+     line: 'export JAVA_OPTIONS="$JAVA_OPTIONS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{ artifactory_jmx_port }} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"'
+     backup: yes

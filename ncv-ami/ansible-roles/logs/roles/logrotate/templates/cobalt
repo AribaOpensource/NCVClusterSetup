@@ -1,0 +1,18 @@
+/var/log/consul2.log
+/var/log/consul.log
+/var/log/ddagent-buddy.log
+/var/log/netplugin.log
+/var/log/nomad_ui.log
+/var/log/nomad.log
+/var/log/splunk.log
+/var/log/datadog-agent/*.log
+/var/log/docker-bench-security.log
+{
+    rotate 4
+    size 100M
+    copytruncate
+    missingok
+    notifempty
+    compress
+    delaycompress
+}

@@ -1,0 +1,16 @@
+---
+    - name: Replacing line
+      lineinfile:
+            path: /etc/init/nomad_ui.conf
+            regexp: 'IMAGEID='
+            line: "IMAGEID=$(docker images | grep '/nomad-ui' | head -1 | awk '{print $3}')"
+    - name: Replacing new command
+      replace:
+            path: /etc/init/nomad_ui.conf           
+            regexp: '^.*JENKINS_BASE_URL=.*$'
+            replace: 'docker run -t -e "NOMAD_ENABLE=1" -e "NOMAD_ADDR=http://nomad.service:4646" -e "CONSUL_ENABLE=1" -e "CONSUL_ADDR=consul.service:8500" -e "CONSUL_READ_ONLY=true" -e "NOMAD_READ_ONLY=true" -p 8000:3000 --name=nomad-ui-gw $IMAGEID >> /var/log/nomad_ui.log 2>&1'
+    - name: start nomad_ui service
+      command: service nomad_ui restart
+      register: restart
+    - name: start output
+      debug: var=restart

@@ -1,0 +1,81 @@
+---
+# Upgrades Contiv
+
+- name: "stop netmaster"
+  become: true
+  service: name=netmaster state=stopped
+  when: inventory_hostname in groups['ncv']
+
+- name: "stop netplugin"
+  become: true
+  service:
+   name: netplugin
+   state: stopped
+
+# This task copies Contiv binaries to /tmp of remote hosts
+- name: "copy contiv binaries to /tmp"
+  copy:
+    src: "{{ contiv_bin_src_dir }}"
+    dest: /tmp
+  when: inventory_hostname in groups['ncv']
+
+- name: "delete netctl /usr/local/bin"
+  file:
+   path: /usr/local/bin/netctl
+   state: absent
+
+- name: "delete netplugin /usr/local/bin"
+  file:
+   path: /usr/local/bin/netplugin
+   state: absent
+
+- name: "delete netmaster /usr/local/bin"
+  file:
+   path: /usr/local/bin/netmaster
+   state: absent
+
+# copy the netctl to /usr/bin or /usr/local/bin defined in contiv_bin_dest_dir
+- name: "copy netctl"
+  copy:
+   src: "/tmp/contiv-{{ contiv_version }}/netctl"
+   dest: "{{ contiv_bin_dest_dir }}"
+   group: "{{ bin_group }}"
+   mode: 0755
+   backup: yes
+   remote_src: yes
+
+# copy the netmaster to /usr/bin or /usr/local/bin defined in contiv_bin_dest_dir if exists
+- name: get file stat to be able to perform check in the following task
+  stat: path="{{ contiv_bin_dest_dir }}/netmaster"
+  register: file_netmaster_exists
+  ignore_errors: True
+
+- name: copy netmaster if exists
+  copy: src="/tmp/contiv-{{ contiv_version }}/netmaster" dest="{{ contiv_bin_dest_dir }}" group={{ bin_group }} mode=0755 backup=yes remote_src=yes
+  when: file_netmaster_exists.stat.exists
+
+# copy the netplugin to /usr/bin or /usr/local/bin defined in contiv_bin_dest_dir
+- copy:
+   src: "/tmp/contiv-{{ contiv_version }}/netplugin"
+   dest: "{{ contiv_bin_dest_dir }}"
+   group: "{{ bin_group }}"
+   mode: 0755
+   backup: yes
+   remote_src: yes
+
+# copy the get-contiv-diags to /usr/bin or /usr/local/bin defined in contiv_bin_dest_dir
+- copy:
+   src: "/tmp/contiv-{{ contiv_version }}/get-contiv-diags"
+   dest: "{{ contiv_bin_dest_dir }}"
+   group: "{{ bin_group }}"
+   mode: 0755
+   backup: yes
+   remote_src: yes
+
+- name: "start netmaster"
+  become: true
+  service: name=netmaster state=started
+  when: inventory_hostname in groups['ncv']
+
+- name: "start netplugin"
+  service: name=netplugin state=started

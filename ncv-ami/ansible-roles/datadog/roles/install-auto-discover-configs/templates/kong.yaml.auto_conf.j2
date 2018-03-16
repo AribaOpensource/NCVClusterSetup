@@ -1,0 +1,10 @@
+docker_images:
+  - kong
+init_config:
+instances:
+  - kong_status_url: "http://%%host%%:8001/status/"
+    tags:
+        - container-type:kong
+        - docker-config:auto-discovered
+        - container-ip:"%%host%%"
+

@@ -1,0 +1,18 @@
+#Enable https-proxy for Datadog in outbound https traffic
+---
+- name: Set https-proxy defaults
+  set_fact:
+     proxy_host: https-proxy.service
+     proxy_port: 3128
+
+- name: Point https-proxy to corp settings in non-prod envs
+  set_fact:
+     proxy_host: proxy.ariba.com
+     proxy_port: 8080
+  when: env_type != 'prod'
+
+- name: Update proxy_host in datadog.conf
+  lineinfile: path=/etc/dd-agent/datadog.conf regexp="^proxy_host:" line="proxy_host{{ ':' }} {{ proxy_host }}"
+
+- name: Update proxy_port in datadog.conf
+  lineinfile: path=/etc/dd-agent/datadog.conf regexp="^proxy_port:" line="proxy_port{{ ':' }} {{ proxy_port }}"

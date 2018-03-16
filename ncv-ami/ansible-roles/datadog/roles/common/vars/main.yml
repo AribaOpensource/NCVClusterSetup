@@ -1,0 +1,17 @@
+#Datadog settings
+---
+env_type: dev
+datadog:
+   defaults:
+      version: 5.14.0
+      repo_url: https://registry.mo.sap.corp:443/bin-prod
+      artifact_loc: /datadog/agent/5.14.0/debian
+      artifact_name: datadog-agent_5.14.0-1_amd64.deb
+      api_key:
+         prod: 95b83e2131833f26084fde4a9640055c
+         dev: 2e40a98d5655c51da70bd8d23c6d44c1
+   versions:
+      5.14.0:
+         artifact_loc: /datadog/agent/5.14.0/debian
+         artifact_name: datadog-agent_5.14.0-1_amd64.deb
+         

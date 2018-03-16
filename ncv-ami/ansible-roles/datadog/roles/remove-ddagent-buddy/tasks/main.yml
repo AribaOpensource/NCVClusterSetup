@@ -1,0 +1,23 @@
+#Remove ddagent-buddy from a host
+---
+
+- name: Stop the ddagent-buddy service running
+  shell: stop ddagent-buddy || echo Failed to stop ddagent-buddy. Ignoring...
+  register: out
+- debug: var=out.stdout
+
+- name: Remove ddagent-buddy job from the machine
+  shell: mv /etc/init/ddagent-buddy.conf /etc/init/ddagent-buddy.conf.BAK || echo ddagent-buddy may not be on the host. Ignoring...
+  register: out
+- debug: var=out.stdout
+
+- name: Take a backup of existing /etc/dd-agent/datadog.conf and /etc/dd-agent/conf.d/process.yaml
+  shell: cp /etc/dd-agent/datadog.conf /etc/dd-agent/datadog.conf.5.8.4;cp /etc/dd-agent/conf.d/process.yaml /etc/dd-agent/conf.d/process.yaml.5.8.4
+
+- name: Remove ddagent-buddy tag from datadog.conf
+  lineinfile: path=/etc/dd-agent/datadog.conf regexp='(^tags{{ ':' }} .+),role{{ ':' }}ddagent-buddy(.+)' line='\1\2' backup=yes backrefs=yes
+
+- name: Remove ddagent-buddy entry from /etc/dd-agent/conf.d/process.yaml
+  lineinfile: path=/etc/dd-agent/conf.d/process.yaml regexp='- name{{ ':' }} ddagent-buddy' state=absent
+- lineinfile: path=/etc/dd-agent/conf.d/process.yaml regexp="search_string{{ ':' }} \['ddagent-buddy'\]" state=absent
+

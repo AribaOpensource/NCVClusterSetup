@@ -1,0 +1,16 @@
+[Unit]
+Description=Nomad agent
+After=local-fs.target
+After=network-online.target
+Requires=multi-user.target
+
+[Service]
+Type=simple
+Restart=on-failure
+SuccessExitStatus=0 SIGINT
+KillSignal=SIGINT
+ExecStart=/bin/bash /var/cobalt/systemd_scripts/nomad-service.sh
+ExecStopPost=/bin/sleep 10
+
+[Install]
+WantedBy=multi-user.target

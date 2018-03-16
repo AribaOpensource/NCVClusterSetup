@@ -1,0 +1,48 @@
+---
+# Nomad installation steps
+- name: Install nomad
+  unarchive:
+    remote_src: yes
+    src: "{{rel_hashi}}/vault/{{vault_version}}/vault_{{vault_version}}_linux_amd64.zip"
+    dest: /usr/local/bin/
+    mode: 0755
+
+- copy:
+    src: vault.service
+    dest: /etc/systemd/system/vault.service
+
+- file:
+    path: /var/cobalt/systemd_scripts
+    state: directory
+    mode: 0755
+
+- copy:
+    src: vault-service.sh
+    dest: /var/cobalt/systemd_scripts/vault-service.sh
+    mode: 0755
+
+- file:
+    path: /var/vault/config
+    state: directory
+    mode: 0755
+
+- copy:
+    src: "vault.hcl.template"
+    dest: /var/vault/config/
+    mode: 0755
+
+- copy:
+    src: "vault.crt"
+    dest: /var/vault/config/
+    mode: 0755
+
+- copy:
+    src: "vault.key"
+    dest: /var/vault/config/
+    mode: 0755
+
+- name: enable vault service
+  systemd:
+    name: vault.service
+    enabled: yes
+    masked: no

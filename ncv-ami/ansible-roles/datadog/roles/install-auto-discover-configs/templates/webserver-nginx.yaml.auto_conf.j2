@@ -1,0 +1,12 @@
+docker_images:
+  - webserver-nginx
+
+init_config:
+
+instances:
+  - nginx_status_url: "http://%%host%%/nginx_status"
+    ssl_validation: false
+    tags:
+      - container-type:nginx
+      - docker-config:auto-discovered
+      - container-ip:"%%host%%"

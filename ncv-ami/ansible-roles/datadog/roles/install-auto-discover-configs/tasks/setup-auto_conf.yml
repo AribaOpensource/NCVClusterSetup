@@ -1,0 +1,36 @@
+#Install config files for various apps in conf.d/auto_conf directory for Docker auto-discovery
+---
+- name: Delete config files in /etc/dd-agent/conf.d/auto_conf/ installed out of the box
+  shell: rm /etc/dd-agent/conf.d/auto_conf/*.yaml
+
+- name: Remove jmx.yaml from conf.d, currently this has no use.
+  shell: mv /etc/dd-agent/conf.d/jmx.yaml /etc/dd-agent/conf.d/jmx.yaml.BAK || echo "skipping..."
+
+- name: Add /usr/bin/ to PATH in /etc/init.d/datadog-agent to support JMX integration 
+  lineinfile: path=/etc/init.d/datadog-agent regexp="^PATH=" line="PATH=$PATH:/sbin:/usr/bin"
+
+#- name: Remove cassandra.yaml from conf.d
+# shell: mv /etc/dd-agent/conf.d/cassandra.yaml /etc/dd-agent/conf.d/cassandra.yaml.BAK || echo "skipping..."
+# when: cluster_status == "live"
+
+#- name: Configure auto-discovery for Cassandra containers
+# template: src=cassandra.yaml.auto_conf.j2 dest=/etc/dd-agent/conf.d/auto_conf/cassandra.yaml owner=dd-agent group=dd-agent
+
+#- name: Remove kong.yaml from conf.d
+# shell: mv /etc/dd-agent/conf.d/kong.yaml /etc/dd-agent/conf.d/kong.yaml.BAK || echo "skipping..."
+
+#- name: Configure auto-discovery for Kong containers
+#  template: src=kong.yaml.auto_conf.j2 dest=/etc/dd-agent/conf.d/auto_conf/kong.yaml owner=dd-agent group=dd-agent
+
+- name: Remove nginx.yaml from conf.d
+  shell: mv /etc/dd-agent/conf.d/nginx.yaml /etc/dd-agent/conf.d/nginx.yaml.BAK || echo "skipping..."
+
+- name: Default nginx auto-discovery template
+  set_fact: nginx_tmpl=nginx.yaml.auto_conf.j2
+
+- name: Set nginx template for standby cluster
+  set_fact: nginx_tmpl=webserver-nginx.yaml.auto_conf.j2
+  when: cluster_status == "standby"
+
+- name: Configure auto-discovery for Nginx containers
+  template: src="{{ nginx_tmpl }}" dest=/etc/dd-agent/conf.d/auto_conf/nginx.yaml owner=dd-agent group=dd-agent

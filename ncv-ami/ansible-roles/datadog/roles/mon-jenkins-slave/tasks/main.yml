@@ -1,0 +1,3 @@
+---
+- name: Add check for process that runs slave.jar
+  template: src="process.yaml.j2" dest=/etc/dd-agent/conf.d/process.yaml

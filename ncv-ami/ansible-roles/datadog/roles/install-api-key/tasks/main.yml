@@ -1,0 +1,9 @@
+#Updates the API KEY
+# Run playbook with extra-vars option api_key=API_KEY_VALUE
+---
+- name: Check if api_key is made available by the playbook
+  fail: msg="api_key is not specified"
+  when: not api_key
+
+- name: Update dd_api_key in /etc/dd-agent/datadog.conf
+  lineinfile: path=/etc/dd-agent/datadog.conf regexp="^api_key:" line="api_key{{ ':' }} {{ api_key }}"

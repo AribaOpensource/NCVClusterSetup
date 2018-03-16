@@ -1,0 +1,6 @@
+#Install config files for various apps in conf.d/auto_conf directory for Docker auto-discovery
+---
+- name: Configure auto-discovery related configs on app nodes, skip this step on ncv and aj host
+  include: setup-auto_conf.yml
+  when: role == 'app'
+

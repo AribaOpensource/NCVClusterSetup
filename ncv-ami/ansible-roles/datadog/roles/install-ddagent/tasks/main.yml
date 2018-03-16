@@ -1,0 +1,88 @@
+#Install the new agent from a deb file. Update api_key, set tags, enable JMX etc
+#Prereq role: datadog/roles/common
+#Params:
+#env_name (Required) - monsoon, aws, sc1-ms etc. used to define env tag
+#env_type (optional) - dev/prod. Default - dev
+#tags (optional) 
+#api_key (optional) - Default - as that defined for dev env in roles/common
+#version (optional) - Default - as that defined in roles/common
+#repo_url (optional) - Default - as that defined in roles/common
+---
+- name: Check if the target host runs on Ubuntu
+  fail: msg="This role is supported only on Ubuntu"
+  when: ansible_distribution != 'Ubuntu'
+
+- name: Check if required input parameters are specified
+  fail: msg="env_name not defined"
+  when: env_name is undefined 
+
+- name: Set default env_type
+  set_fact: env_type=dev
+  when: env_type is undefined
+
+- name: Set default api_key
+  set_fact: api_key="{{ datadog['defaults']['api_key'][env_type] }}"
+  when: api_key is undefined
+
+- name: Set default version
+  set_fact: version="{{ datadog['defaults']['version'] }}"
+  when: version is undefined
+
+- name: Set repo_url
+  set_fact: repo_url="{{ datadog['defaults']['repo_url'] }}"
+  when: repo_url is undefined
+     
+- name: Set the derived facts
+  set_fact:
+     artifact_name="{{ datadog['versions'][version]['artifact_name'] }}"
+     artifact_loc="{{ datadog['versions'][version]['artifact_loc'] }}"
+
+- name: Download DD agent artifact
+  get_url: 
+     url: "{{ repo_url }}{{ artifact_loc }}/{{ artifact_name }}" 
+     dest: "/var/tmp/{{ artifact_name }}"
+     timeout: 60
+     validate_certs: no
+#    force: yes
+
+- name: Install DD agent package
+  shell: "dpkg -i /var/tmp/{{ artifact_name }}"
+
+- name: Install DD agent config file, /etc/dd-agent/datadog.conf
+  shell: "cp /etc/dd-agent/datadog.conf.example /etc/dd-agent/datadog.conf"
+
+- name: Set correct permissions on /etc/dd-agent/datadog.conf
+  file: path=/etc/dd-agent/datadog.conf owner=dd-agent group=dd-agent
+
+- name: Get hostname for instance-name tag
+  shell: hostname
+  register: h
+
+- name: Prepare tags string with basic tags with env and host names
+  set_fact: tags_str="env{{ ':' }}{{ env_name }},instance-name{{ ':' }}{{ h.stdout }}"
+
+- name: Append additional playbook defined tags
+  set_fact: tags_str="{{ tags_str }},{{ tags }}"
+  when: tags is defined
+
+- name: Append instance role tag if that is specified
+  set_fact: tags_str="{{ tags_str }},role{{ ':' }}{{ instance_role }}"
+  when: instance_role is defined
+
+- name: Add tags to datadog.conf
+  lineinfile: path=/etc/dd-agent/datadog.conf regexp="^tags:" line="tags{{ ':' }} {{ tags_str }}"
+
+- name: Update dd_api_key 
+  lineinfile: path=/etc/dd-agent/datadog.conf regexp="^api_key:" line="api_key{{ ':' }} {{ api_key }}"
+
+- name: Update dd_url 
+  lineinfile: path=/etc/dd-agent/datadog.conf regexp="^dd_url:" line="dd_url{{ ':' }} https://app.datadoghq.com"
+
+- name: Enable JMX integration
+  lineinfile: path=/etc/dd-agent/datadog.conf regexp="^sd_jmx_enable" line="sd_jmx_enable{{ ':' }} yes"
+
+- name: Check Datadog agent version installed
+  shell: /opt/datadog-agent/agent/agent.py info |grep Collector
+  register: out
+
+- debug: msg="Datadog agent version={{ out.stdout }}"

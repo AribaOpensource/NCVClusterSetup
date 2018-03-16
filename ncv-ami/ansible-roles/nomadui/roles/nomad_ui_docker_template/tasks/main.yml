@@ -1,0 +1,6 @@
+---
+    - name: Replacing line
+      lineinfile:
+            path: /var/cobalt/nomad_ui_docker_pull.sh.template
+            regexp: 'docker pull'
+            line: "docker pull @@REPO@@/nomad-ui/nomad-ui:5"

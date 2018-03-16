@@ -1,0 +1,13 @@
+      - name: Verify DataDog HQ Access via https-proxy
+        url: https://5-14-0-app.datadoghq.com
+        timeout: 5
+        min_collection_interval: 60
+        content_match: 'Log in with a .*Datadog Account:'
+        collect_response_time: true
+        ignore_ssl_warning: true
+        skip_event: true
+        tags:
+           - url:https://5-14-0-app.datadoghq.com
+           - env:{{ env_name }}
+           - cluster:{{ cluster_name }}
+           - check:verify-https-proxy

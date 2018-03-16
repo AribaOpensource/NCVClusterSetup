@@ -1,0 +1,7 @@
+registry_host: "registry.mo.sap.corp"
+registry_url: "http://registry.mo.sap.corp"
+contiv_version: "1.1.2"
+remote_sudo_user: "i851588"
+bin_group: "ubuntu"
+contiv_bin_src_dir: "/Users/i851588/work/cobalt/ansible-roles/contiv/contiv-1.1.2" 
+contiv_bin_dest_dir: "/usr/local/bin"

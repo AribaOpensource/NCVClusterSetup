@@ -1,0 +1,44 @@
+---
+# Nomad installation steps
+- name: Install nomad
+  unarchive:
+    remote_src: yes
+    src: "{{rel_hashi}}/nomad/{{nomad_version}}/nomad_{{nomad_version}}_linux_amd64.zip"
+    dest: /usr/local/bin/
+    mode: 0755
+
+- copy:
+    src: nomad.service
+    dest: /etc/systemd/system/nomad.service
+
+- file:
+    path: /var/cobalt/systemd_scripts
+    state: directory
+    mode: 0755
+
+- copy:
+    src: nomad-service.sh
+    dest: /var/cobalt/systemd_scripts/nomad-service.sh
+    mode: 0755
+
+- file:
+    path: /var/nomad/config
+    state: directory
+    mode: 0755
+    
+- file:
+    path: /var/nomad/data
+    state: directory
+    mode: 0755
+    
+
+- copy:
+    src: "nomad.hcl.template"
+    dest: /var/nomad/config/
+    mode: 0755
+
+- name: enable nomad service
+  systemd:
+    name: nomad.service
+    enabled: yes
+    masked: no

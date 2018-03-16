@@ -1,0 +1,41 @@
+#Installs datadog agent version using the deb file supplied
+---
+- name: Check artifactory,env and cluster info are available
+  fail: msg="env_name, env_type (prod/qa/dev), env_name (monsoon,aws,bare-metal), cluster_name (qa2/sc1/us1 etc),art_url,art_repo,role (app,ncv,aj)"
+  when: env_type is undefined or env_name is undefined or cluster_name is undefined or role is undefined
+
+- name: Default api_key to 95b83e2131833f26084fde4a9640055c if none specified
+  set_fact: api_key=95b83e2131833f26084fde4a9640055c
+  when: api_key is undefined
+
+- name: Upload Datadog agent deb package from control host
+  copy: src="datadog-agent_5.14.0-1_amd64.deb" dest=/tmp/datadog-agent_5.14.0-1_amd64.deb
+
+- name: Install datadog-agent_5.14.0-1_amd64.deb
+  shell: dpkg -i /tmp/datadog-agent_5.14.0-1_amd64.deb
+
+- name: Check Datadog agent version installed
+  shell: /opt/datadog-agent/agent/agent.py info |grep Collector
+  register: out
+- debug: msg="Datadog agent version={{ out.stdout }}"
+
+- name: Enable auto-discovery option from datadog.conf on app nodes
+  lineinfile: path=/etc/dd-agent/datadog.conf line="service_discovery_backend{{ ':' }} docker"
+  when: role == 'app'
+
+- name: Enable JMX integration 
+  lineinfile: path=/etc/dd-agent/datadog.conf regexp="^sd_jmx_enable" line="sd_jmx_enable{{ ':' }} yes"
+
+- name: Update dd_api_key in production env
+  lineinfile: path=/etc/dd-agent/datadog.conf regexp="^api_key:" line="api_key{{ ':' }} {{ api_key }}"
+
+- name: Check Datadog agent api_key
+  shell: grep ^api_key /etc/dd-agent/datadog.conf 
+  register: out
+
+- name: Install /etc/dd-agent/conf.d/docker_daemon.yaml on app nodes
+  template: src=docker_daemon.yaml.j2 dest=/etc/dd-agent/conf.d/docker_daemon.yaml owner=dd-agent group=dd-agent
+  when: role == 'app'
+
+- name: Install latest /etc/dd-agent/conf.d/process.yaml
+  template: src="process.{{ role }}.yaml.j2" dest=/etc/dd-agent/conf.d/process.yaml owner=dd-agent group=dd-agent

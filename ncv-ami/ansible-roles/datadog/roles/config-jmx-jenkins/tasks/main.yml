@@ -1,0 +1,4 @@
+#Installs config file for Jenkins/JMX monitoring
+---
+- name: Installs config file for Jenkins/JMX integration
+  template: src=jenkins-jmx.yaml.j2 dest=/etc/dd-agent/conf.d/jmx.yaml owner=dd-agent group=dd-agent

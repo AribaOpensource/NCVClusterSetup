@@ -1,0 +1,39 @@
+{
+    "node_name": "{{ env "MACHINENAME" }}",
+    "bind_addr": "{{ env "IP4_ADD" }}",
+    "client_addr": "{{ env "IP4_ADD" }}",
+    "server": {{env "IS_SERVER"}},
+    "datacenter": "{{ env "DATACENTER" }}",
+    "data_dir": "/var/consul/",
+    "ui_dir":"/usr/share/consul-web-ui/dist",
+    "log_level": "INFO",
+    "leave_on_terminate": true,
+    "disable_update_check": true,
+    "disable_remote_exec": true,
+    "ports": {
+      "DNS": 8600,
+      "HTTP": 8500,
+      "Serf_Lan": 8301,
+      "Serf_Wan": 8302,
+      "Server": 8300
+    },
+    "bootstrap_expect": {{ env "SERVER_COUNT" }},
+    "addresses": {
+      "http":"{{ env "IP4_ADD" }}",
+      "DNS": "{{ env "IP4_ADD" }}"
+    },
+    "advertise_addr": "{{ env "IP4_ADD" }}",
+    "telemetry": {
+      "statsd_address": "{{ env "IP4_ADD" }}:8125"
+    },
+    "dns_config": {
+      "allow_stale": true,
+      "max_stale": "10m"
+    },
+    "domain": "{{ env "MUDOMAIN" }}",
+    "recursors": ["{{ env "RECURSORS" }}"],
+    "enable_syslog": false,
+
+
+    "retry_join": ["provider={{ env "PROVIDER_TYPE" }} {{ env "CLOUD_PROVIDER_KEY_NAME" }}=clustername tag_value={{ env "TAG_VALUE" }}"]
+}
