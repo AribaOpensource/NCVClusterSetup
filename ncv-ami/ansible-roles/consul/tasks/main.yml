@@ -34,8 +34,8 @@
     mode: 0755
 
 - copy:
-    src: awsHelper.sh
-    dest: /var/cobalt/systemd_scripts/awsHelper.sh
+    src: dnsmasq-helper.sh
+    dest: /var/cobalt/systemd_scripts/dnsmasq-helper.sh
     mode: 0755
 
 - file:
@@ -50,19 +50,8 @@
   with_fileglob:
     - "*.template"
 
-- copy:
-    src: updateResolvConf.sh.template
-    dest: /var/consul/config/updateResolvConf.sh.template
-    mode: 0755
-
-
 - name: enable consul service
   systemd:
     name: consul.service
     enabled: yes
     masked: no
-
-- cron:
-    name: update resolve.conf"
-    minute: "2"
-    job: "/var/consul/config/updateResolvConf.sh > /dev/null"

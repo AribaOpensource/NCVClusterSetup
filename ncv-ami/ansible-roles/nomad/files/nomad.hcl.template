@@ -20,6 +20,6 @@ consul {
 }
 
 server {
-  bootstrap_expect = 1
+  bootstrap_expect = {{ env "SERVER_COUNT" }}
   enabled          = true
 }

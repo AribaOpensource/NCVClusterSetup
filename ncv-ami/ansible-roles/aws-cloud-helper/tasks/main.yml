@@ -1,0 +1,8 @@
+- file:
+    path: /var/cloud-helper
+    state: directory
+    mode: 0755
+- copy:
+    src: metadata-provider.sh
+    dest: /var/cloud-helper/metadata-provider.sh
+    mode: 0755

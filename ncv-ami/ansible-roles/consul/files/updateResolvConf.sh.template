@@ -1,8 +1,0 @@
-#!/bin/bash
-# we want to resolve if addres has atleast 3 or more dots
-# echo options ndots:3 >/tmp/new.resolv.conf
-# add localhost/consul as a name server
-echo nameserver {{ env "IP4_ADD" }} >>/tmp/new.resolv.conf
-# exclude unwated entries from resolve.conf
-grep -v search /etc/resolv.conf | grep -v "{{ env "IP4_ADD" }}" | grep -v ndots | grep -v "#" | grep -v "domain " >>/tmp/new.resolv.conf
-cp /tmp/new.resolv.conf /etc/resolv.conf

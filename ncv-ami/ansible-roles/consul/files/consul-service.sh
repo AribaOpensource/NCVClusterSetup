@@ -1,7 +1,7 @@
 #!/bin/bash
 
 . /etc/environment
-. /var/cobalt/systemd_scripts/awsHelper.sh
+. /var/cobalt/systemd_scripts/dnsmasq-helper.sh
 
 # Make sure to use all our CPUs, because Consul can block a scheduler thread
 export GOMAXPROCS=$(nproc)
